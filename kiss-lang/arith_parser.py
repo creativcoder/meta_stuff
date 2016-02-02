@@ -1,8 +1,8 @@
 # Token types
 
-INTEGER, PLUS, WHITESPACE, EOF = 'INTEGER','PLUS','WHITESPACE','EOF'
+INTEGER, PLUS,MINUS, WHITESPACE, EOF = 'INTEGER','PLUS','MINUS',' ','EOF'
 
-class Token:
+class TokenClass:
     INTEGER = 'INTEGER'
     PLUS = '+'
     MINUS = '-'
@@ -11,6 +11,8 @@ class Token:
     MOD = '%'
     WHITESPACE = ' '
     EOF = 'EOF'
+
+OPS = ['PLUS','MINUS','DIV','MOD','EXP']
 
 
 class Token(object):
@@ -29,6 +31,13 @@ class Token(object):
     def __repr__(self):
         return self.__str__()
 
+    def __add__(self,other):
+        
+        value = str(self.value)
+        value2 = str(other.value)
+        return Token(self.type,int(value+value2))
+
+
 class Interpreter(object):
     def __init__(self,text):
         # client string input, e.g. "3 + 5"
@@ -40,6 +49,9 @@ class Interpreter(object):
     def error(self):
         raise Exception('Error parsing input')
 
+    def skip_whitespace(self):
+        self.pos += 1
+
     def get_next_token(self):
         
         text = self.text
@@ -47,7 +59,11 @@ class Interpreter(object):
         if self.pos > len(text) -1:
             return Token(EOF,None)
 
+        if text[self.pos] == TokenClass.WHITESPACE:
+            self.skip_whitespace()
+            
         current_char = text[self.pos]
+
         if current_char.isdigit():
             token = Token(INTEGER,int(current_char))
             self.pos += 1
@@ -58,13 +74,15 @@ class Interpreter(object):
             self.pos += 1
             return token
 
+        if current_char == '-':
+            token = Toke(MINUS,current_char)
+            self.pos += 1
+            return token
+
         self.error()
 
     def eat(self,token_type):
-        # compare the current token type with the passed token
-        # type and if they match then eat the current token and
-        # assign the next token to the self.current_token,
-        # otherwise raise the exception
+
         if self.current_token.type == token_type:
             self.tok_seq.append(self.current_token)
             self.current_token = self.get_next_token()
@@ -76,6 +94,9 @@ class Interpreter(object):
 
         left = self.current_token
         self.eat(INTEGER)
+        while(self.current_token.type not in OPS):
+            left = left + self.current_token
+            self.eat(INTEGER)
 
         op = self.current_token
         self.eat(PLUS)
@@ -100,9 +121,8 @@ def main():
             break
         if not text:
             continue
-        format_inp = text.replace(" ","")
 
-        interpreter = Interpreter(format_inp)
+        interpreter = Interpreter(text)
 
         result = interpreter.build_and_eval()
 
