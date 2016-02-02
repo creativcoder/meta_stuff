@@ -33,6 +33,7 @@ class Interpreter(object):
     def __init__(self,text):
         # client string input, e.g. "3 + 5"
         self.text = text
+        self.tok_seq = []
         self.pos = 0
         self.current_token = None
 
@@ -65,14 +66,13 @@ class Interpreter(object):
         # assign the next token to the self.current_token,
         # otherwise raise the exception
         if self.current_token.type == token_type:
+            self.tok_seq.append(self.current_token)
             self.current_token = self.get_next_token()
         else:
             self.error()
 
-    def eval(self):
+    def build_and_eval(self):
         self.current_token = self.get_next_token()
-
-        # we expect the current token to be an integer
 
         left = self.current_token
         self.eat(INTEGER)
@@ -83,20 +83,29 @@ class Interpreter(object):
         right = self.current_token
         self.eat(INTEGER)
 
+        print(self.tok_seq)
+        print("")
+
         result = left.value + right.value
         return result
 
 
 def main():
+    print("\nKISS (Keep it simple stupid Interpreter) v0.0.1\n\n")
     while True:
         try:
-            text = raw_input('kiss>')
+
+            text = raw_input('kiss::>')
         except EOFError:
             break
         if not text:
             continue
-        interpreter = Interpreter(text.replace(" ",""))
-        result = interpreter.eval()
+        format_inp = text.replace(" ","")
+
+        interpreter = Interpreter(format_inp)
+
+        result = interpreter.build_and_eval()
+
         print(result)
 
 if __name__=='__main__':
