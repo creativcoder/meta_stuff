@@ -1,0 +1,1 @@
+#### Kissc (keep it simple stupid compiler) - a toy compiler/interpreter for the custom language called kiss-lang
