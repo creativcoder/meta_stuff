@@ -101,8 +101,14 @@ class Interpreter(object):
         op = self.current_token
         self.eat(PLUS)
 
+
         right = self.current_token
         self.eat(INTEGER)
+        print(right.value)
+        while(self.current_token.type not in OPS):
+            right = right + self.current_token
+            self.eat(INTEGER)
+
 
         print(self.tok_seq)
         print("")
