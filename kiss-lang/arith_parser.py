@@ -12,7 +12,7 @@ class TokenClass:
     WHITESPACE = ' '
     EOF = 'EOF'
 
-OPS = ['PLUS','MINUS','DIV','MOD','EXP']
+OPS = [TokenClass.PLUS,TokenClass.MINUS,TokenClass.DIV,TokenClass.MULT,TokenClass.MOD]
 
 
 class Token(object):
@@ -52,6 +52,7 @@ class Interpreter(object):
     def skip_whitespace(self):
         self.pos += 1
 
+
     def get_next_token(self):
         
         text = self.text
@@ -70,50 +71,66 @@ class Interpreter(object):
             return token
 
         if current_char == '+':
-            token = Token(PLUS,current_char)
+            token = Token(TokenClass.PLUS,current_char)
             self.pos += 1
             return token
 
         if current_char == '-':
-            token = Toke(MINUS,current_char)
+            token = Token(TokenClass.MINUS,current_char)
+            self.pos += 1
+            return token
+
+        if current_char == '*':
+            token = Token(TokenClass.MULT,current_char)
+            self.pos += 1
+            return token
+
+        if current_char == "/":
+            token = Token(TokenClass.MULT,current_char)
             self.pos += 1
             return token
 
         self.error()
 
     def eat(self,token_type):
+        for i in token_type:
+            if self.current_token.type == i:
+                self.tok_seq.append(self.current_token)
+                self.current_token = self.get_next_token()
+            else:
+                self.error()
 
-        if self.current_token.type == token_type:
-            self.tok_seq.append(self.current_token)
-            self.current_token = self.get_next_token()
-        else:
-            self.error()
+    # seperating integer sequence collection :TODO
+    def get_int_seq(self):
+        pass
 
     def build_and_eval(self):
         self.current_token = self.get_next_token()
 
         left = self.current_token
-        self.eat(INTEGER)
+        self.eat(TokenClass.INTEGER)
         while(self.current_token.type not in OPS):
             left = left + self.current_token
-            self.eat(INTEGER)
+            self.eat(TokenClass.INTEGER)
 
         op = self.current_token
-        self.eat(PLUS)
+        self.eat(OPS)
 
 
         right = self.current_token
-        self.eat(INTEGER)
-        print(right.value)
-        while(self.current_token.type not in OPS):
-            right = right + self.current_token
-            self.eat(INTEGER)
+        self.eat(TokenClass.INTEGER)
+        
 
+        # print(self.tok_seq)
+        if (op.type == TokenClass.PLUS):
+            result = left.value + right.value
+        elif (op.type == TokenClass.MINUS):
+            result = left.value - right.value
+        elif (op.type == TokenClass.DIV):
+            result = left.value / right.value
+        elif (op.type == TokenClass.MULT):
+            result = left.value * right.value
 
-        print(self.tok_seq)
-        print("")
-
-        result = left.value + right.value
         return result
 
 
