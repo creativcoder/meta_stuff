@@ -1,0 +1,36 @@
+# generates a parse tree for the given expression
+
+OPS = ['+','-','*','/','%','=']
+
+stream = 'a=2+3*7-1'
+
+class Node(object):
+    def __init__(self,tok):
+        self.tok = tok
+        self.left = None
+        self.right = None
+
+    def __str__(self):
+        return "[{}]--{}--[{}]".format(self.left,self.tok,self.right)
+
+class Parser(object):
+    def __init__(self,stream):
+        self.root = Node(stream)
+
+    def eat(self,node):
+        cur_pos = 0
+        while cur_pos is not len(node.tok):
+            if node.tok[cur_pos] in OPS:
+                print("We have a opserator")
+                node.left = Node(node.tok[0:cur_pos])
+                node.right= Node(node.tok[cur_pos+1:])
+                node.tok = node.tok[cur_pos]
+                self.eat(node.right)
+            else:
+                cur_pos += 1
+
+if __name__=='__main__':
+    p = Parser(stream)
+    p.eat(p.root)
+
+            
